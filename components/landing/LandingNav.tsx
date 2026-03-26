@@ -38,9 +38,10 @@ export default function LandingNav() {
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#1fce7e]/12 to-transparent" />
       )}
 
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 48px", height: "64px", width: "100%" }}>
+      {/* Nav inner row — 56px on mobile, 64px on desktop */}
+      <div className="flex items-center justify-between px-5 md:px-12 h-[56px] md:h-[64px] w-full relative">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2.5 group">
+        <Link href="/" className="flex items-center gap-2.5 group shrink-0">
           <span className="relative flex h-2.5 w-2.5">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#1fce7e] opacity-60" />
             <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#1fce7e]" />
@@ -50,8 +51,8 @@ export default function LandingNav() {
           </span>
         </Link>
 
-        {/* Desktop Center Nav */}
-        <nav className="hidden md:flex" style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", display: "flex", gap: "8px" }}>
+        {/* Desktop Center Nav — hidden on mobile */}
+        <nav className="hidden md:flex absolute left-1/2 -translate-x-1/2 gap-2">
           {navLinks.map((link) => (
             <a
               key={link.label}
@@ -63,7 +64,7 @@ export default function LandingNav() {
           ))}
         </nav>
 
-        {/* Desktop Right CTAs */}
+        {/* Desktop Right CTAs — hidden on mobile */}
         <div className="hidden md:flex items-center gap-3">
           <Link
             href="/login"
@@ -83,16 +84,17 @@ export default function LandingNav() {
           </Link>
         </div>
 
-        {/* Mobile menu button */}
+        {/* Mobile hamburger — visible only below md */}
         <button
-          className="md:hidden text-[#a9aca9] hover:text-[#eaebe9] p-1.5 rounded-lg hover:bg-white/5 transition-colors"
+          className="md:hidden flex items-center justify-center w-11 h-11 text-[#a9aca9] hover:text-[#eaebe9] rounded-lg hover:bg-white/5 transition-colors"
           onClick={() => setOpen(!open)}
+          aria-label="Toggle navigation menu"
         >
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu Drawer */}
       <AnimatePresence>
         {open && (
           <motion.div
@@ -124,3 +126,4 @@ export default function LandingNav() {
     </motion.header>
   )
 }
+

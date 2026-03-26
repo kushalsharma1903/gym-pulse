@@ -24,17 +24,17 @@ export default function Hero() {
         <div className="absolute top-1/2 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#1fce7e]/5 rounded-full blur-[120px]" />
       </div>
 
-      {/* Two-column layout */}
-      <div className="relative z-10 w-full mx-auto px-16 grid grid-cols-2 items-center gap-[48px]" style={{ minHeight: "90vh", overflow: "visible" }}>
+      {/* Two-column layout — stacks to single column on mobile */}
+      <div className="relative z-10 w-full mx-auto px-5 md:px-16 grid grid-cols-1 md:grid-cols-2 items-center gap-10 md:gap-[48px]" style={{ minHeight: "90vh", overflow: "visible" }}>
 
         {/* LEFT — content */}
-        <div className="flex flex-col gap-6 w-full max-w-[560px] relative z-10" style={{ padding: "60px 48px", paddingBottom: "60px", overflow: "visible" }}>
+        <div className="flex flex-col gap-6 w-full max-w-[560px] mx-auto md:mx-0 relative z-10 pt-24 md:pt-0 text-center md:text-left" style={{ paddingBottom: "60px", overflow: "visible" }}>
           {/* Badge */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#1fce7e]/10 border border-[#1fce7e]/20 self-start"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#1fce7e]/10 border border-[#1fce7e]/20 self-center md:self-start"
           >
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#1fce7e] opacity-75" />
@@ -46,7 +46,20 @@ export default function Hero() {
           </motion.div>
 
           {/* Headline */}
-          <h1 className="flex flex-col m-0 p-0 text-white font-black tracking-tight" style={{ fontSize: "clamp(42px, 5vw, 64px)", fontWeight: 800, lineHeight: 1.05, whiteSpace: "nowrap" }}>
+          {/* On mobile: block layout so VerticalCutReveal spans stack naturally as block rows.
+              On desktop: flex-col for the controlled vertical reveal effect. */}
+          <h1
+            className="m-0 p-0 text-white font-black tracking-tight block md:flex md:flex-col"
+            style={{
+              fontSize: "clamp(28px, 7vw, 64px)",
+              fontWeight: 800,
+              lineHeight: 1.1,
+              writingMode: "horizontal-tb",
+              textOrientation: "mixed",
+              width: "100%",
+              whiteSpace: "normal",
+            }}
+          >
             <VerticalCutReveal delay={0.1} duration={0.7}>
               Run your gym
             </VerticalCutReveal>
@@ -74,18 +87,20 @@ export default function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.85 }}
-            className="flex flex-col sm:flex-row items-start gap-4 mb-16"
+            className="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-16"
           >
             <Link
               href="/signup"
-              className="group flex items-center gap-2 px-8 py-3.5 bg-[#1fce7e] text-black font-bold text-base rounded-full hover:bg-[#1fce7e]/90 transition-all duration-200 shadow-[0_0_30px_rgba(31,206,126,0.4)] hover:shadow-[0_0_50px_rgba(31,206,126,0.6)] hover:-translate-y-0.5"
+              className="group flex items-center justify-center gap-2 bg-[#1fce7e] text-black font-bold text-base rounded-xl hover:bg-[#1fce7e]/90 transition-all duration-200 shadow-[0_0_30px_rgba(31,206,126,0.4)] hover:shadow-[0_0_50px_rgba(31,206,126,0.6)] hover:-translate-y-0.5"
+              style={{ minWidth: 180, padding: "14px 24px" }}
             >
               Start Free Trial
               <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
             </Link>
             <a
               href="#features"
-              className="flex items-center gap-2 px-8 py-3.5 bg-white/5 border border-white/10 text-white font-semibold text-base rounded-full hover:bg-white/10 hover:border-white/20 transition-all duration-200 hover:-translate-y-0.5"
+              className="flex items-center justify-center gap-2 bg-white/5 border border-white/10 text-white font-semibold text-base rounded-xl hover:bg-white/10 hover:border-white/20 transition-all duration-200 hover:-translate-y-0.5"
+              style={{ minWidth: 180, padding: "14px 24px" }}
             >
               See how it works
               <ChevronDown className="h-4 w-4" />
@@ -97,10 +112,10 @@ export default function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 1 }}
-            className="flex flex-row items-center gap-10"
+            className="flex flex-row items-center justify-between md:justify-start gap-4 md:gap-10 w-full"
           >
             {stats.map((stat, i) => (
-              <div key={i} className="flex flex-col items-start gap-0.5">
+              <div key={i} className="flex flex-col items-center md:items-start gap-0.5">
                 <span className="text-2xl font-black text-white">{stat.value}</span>
                 <span className="text-zinc-500 text-sm font-medium">{stat.label}</span>
               </div>
@@ -113,10 +128,10 @@ export default function Hero() {
           initial={{ opacity: 0, x: 60 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.9, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="relative z-[1] flex items-center justify-end w-full overflow-hidden"
-          style={{ paddingRight: 0 }}
+          className="relative z-[1] flex items-center justify-center md:justify-end w-full overflow-hidden"
         >
-          <div style={{width:"100%",maxWidth:"580px",background:"rgba(242,239,233,0.03)",border:"1px solid rgba(242,239,233,0.1)",borderRadius:"12px",overflow:"hidden",transform:"perspective(1200px) rotateY(-4deg) rotateX(1deg)",boxShadow:"0 24px 80px rgba(0,0,0,0.7)"}}>
+          <div style={{width:"100%",maxWidth:"320px",margin:"24px auto 0"}} className="md:max-w-[580px] md:mx-0">
+          <div style={{width:"100%",background:"rgba(242,239,233,0.03)",border:"1px solid rgba(242,239,233,0.1)",borderRadius:"12px",overflow:"hidden",transform:"perspective(1200px) rotateY(-4deg) rotateX(1deg)",boxShadow:"0 24px 80px rgba(0,0,0,0.7)"}}>
             <div style={{background:"rgba(242,239,233,0.06)",borderBottom:"1px solid rgba(242,239,233,0.1)",padding:"10px 16px",display:"flex",alignItems:"center",gap:"6px"}}>
               <div style={{width:"10px",height:"10px",borderRadius:"50%",background:"#FF5F57"}}></div>
               <div style={{width:"10px",height:"10px",borderRadius:"50%",background:"#FEBC2E"}}></div>
@@ -176,6 +191,7 @@ export default function Hero() {
                 </svg>
               </div>
             </div>
+          </div>
           </div>
         </motion.div>
       </div>
