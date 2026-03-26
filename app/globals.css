@@ -1,0 +1,167 @@
+@import "tailwindcss";
+
+@theme inline {
+  /* Base surfaces — tonal layering (no harsh 1px borders) */
+  --color-background: #080b0a;
+  --color-surface: #0c0f0e;
+  --color-surface-low: #111413;
+  --color-surface-mid: #171a19;
+  --color-surface-high: #1c201f;
+  --color-surface-highest: #222725;
+  --color-surface-bright: #282d2b;
+
+  /* Ghost borders — low-opacity only */
+  --color-border: rgba(255,255,255,0.06);
+  --color-border2: rgba(255,255,255,0.10);
+
+  /* Accent system */
+  --color-accent: #1fce7e;
+  --color-accent-bright: #62fea8;
+  --color-accent-container: #14ca7a;
+  --color-accent-dim: rgba(31, 206, 126, 0.10);
+  --color-accent-glow: rgba(31, 206, 126, 0.06);
+  --color-accent-glow-strong: rgba(31, 206, 126, 0.20);
+
+  /* Status colors */
+  --color-green: #1fce7e;
+  --color-yellow: #ffa028;
+  --color-red: #ff5050;
+  --color-blue: #75e0ff;
+  --color-yellow-dim: rgba(255, 160, 40, 0.12);
+  --color-red-dim: rgba(255, 80, 80, 0.12);
+  --color-green-dim: rgba(31, 206, 126, 0.12);
+
+  /* Typography — on-surface (not pure white) */
+  --color-text: #eaebe9;
+  --color-text2: #a9aca9;
+  --color-muted: #737674;
+
+  /* Fonts */
+  --font-sans: var(--font-outfit);
+  --font-mono: var(--font-jetbrains-mono);
+
+  /* Special tokens */
+  --color-sparkles-color: var(--sparkles-color);
+  --color-gradient-color: var(--gradient-color);
+}
+
+:root {
+  --gradient-color: #1fce7e;
+  --sparkles-color: #1fce7e;
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Headings: tight, aggressive tracking */
+h1, h2, h3, h4 {
+  letter-spacing: -0.03em;
+  font-weight: 800;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+  /* Hide scrollbar globally, keep scroll functionality */
+  overflow-y: scroll;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+html::-webkit-scrollbar { display: none; }
+
+/* Also hide scrollbar on all scrollable elements */
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+*::-webkit-scrollbar { display: none; }
+
+/* Focus visible ring */
+:focus-visible {
+  outline: 2px solid rgba(31,206,126,0.5);
+  outline-offset: 2px;
+}
+
+/* Selection color */
+::selection {
+  background: rgba(31,206,126,0.25);
+  color: #F2EFE9;
+}
+
+/* ── Global interactive element defaults ─────────────────── */
+button, [role="button"], a, label[for], label[class*="cursor"] {
+  cursor: pointer;
+  user-select: none;
+}
+
+/* ── Page entry animation ────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.page-entry {
+  animation: fadeUp 0.35s ease forwards;
+}
+
+/* ── Shimmer skeleton ────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position:  400px 0; }
+}
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(242,239,233,0.04) 25%,
+    rgba(242,239,233,0.09) 50%,
+    rgba(242,239,233,0.04) 75%
+  );
+  background-size: 800px 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+/* ── Soft pulse (Add Member button) ─────────────────────── */
+@keyframes softPulse {
+  0%,100% { box-shadow: 0 0 0 0px rgba(31,206,126,0.2); }
+  50%     { box-shadow: 0 0 0 8px rgba(31,206,126,0); }
+}
+
+/* ── Urgent pulse (expiry badges ≤3d) ───────────────────── */
+@keyframes urgentPulse {
+  0%,100% { opacity: 1; }
+  50%     { opacity: 0.6; }
+}
+
+/* ── Modal entrance ─────────────────────────────────────── */
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.96) translateY(8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ── Toast entrance ─────────────────────────────────────── */
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Button / inline spinner ────────────────────────────── */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Dividers ───────────────────────────────────────────── */
+hr, .gp-divider {
+  border: none;
+  border-top: 1px solid rgba(242,239,233,0.06);
+  margin: 0;
+}
+
+/* ── will-change helper ─────────────────────────────────── */
+.will-change-transform {
+  will-change: transform;
+}
