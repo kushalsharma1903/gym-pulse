@@ -41,6 +41,7 @@ export default async function DashboardPage({
       .eq('gym_id', gymData.id)
       .maybeSingle()
     subscription = subData
+    console.log('SUB DATA:', JSON.stringify(subData))
   }
   
   const gymName = gymData?.gym_name || 'GymPulse'
