@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { LayoutDashboard, Settings, FileText, Menu, X } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import SidebarBranches from './sidebar-branches'
+import { useBranch } from '@/app/context/BranchContext'
 
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
@@ -26,6 +27,8 @@ const links = [
 export default function DashboardNav() {
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const { subscriptionTier } = useBranch()
+  const isBusiness = subscriptionTier === 'business'
 
   // Prevent background scroll when mobile menu is open
   useEffect(() => {
@@ -135,9 +138,12 @@ export default function DashboardNav() {
               style={{ maxHeight: 'calc(100vh - 60px)' }}
             >
               <div className="flex flex-col gap-1 p-4">
-                <div className="mb-4 pb-4 border-b border-white/8">
-                  <SidebarBranches />
-                </div>
+                {/* Branch switcher — Business plan only */}
+                {isBusiness && (
+                  <div className="mb-4 pb-4 border-b border-white/8">
+                    <SidebarBranches />
+                  </div>
+                )}
                 {links.map((link) => {
                   const isActive = link.exact ? pathname === link.href : pathname.startsWith(link.href)
                   const Icon = link.icon
