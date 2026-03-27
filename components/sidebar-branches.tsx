@@ -2,8 +2,11 @@
 
 import { useBranch } from '@/app/context/BranchContext'
 import { Plus, Check, MapPin, ChevronLeft, ChevronRight, X } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
+import { motion } from 'framer-motion'
+import { navLinks, WhatsAppIcon } from './dashboard-nav'
 
 interface SidebarBranchesProps {
   /** Mobile-only: whether the overlay is open (controlled by parent) */
@@ -15,6 +18,7 @@ interface SidebarBranchesProps {
 export default function SidebarBranches({ mobileOpen = false, onMobileClose }: SidebarBranchesProps) {
   const { currentGym, allGyms, switchBranch, isLoading, subscriptionTier } = useBranch()
   const router = useRouter()
+  const pathname = usePathname()
   const [showToast, setShowToast] = useState(false)
   const [isOpen, setIsOpen] = useState(true) // desktop collapsible state
 
@@ -167,10 +171,10 @@ export default function SidebarBranches({ mobileOpen = false, onMobileClose }: S
       {/* ── DESKTOP SIDEBAR ──────────────────────────────────────── */}
       <div className={`hidden md:flex flex-col shrink-0 sticky top-[60px] h-[calc(100vh-60px)] overflow-y-auto m-0 transition-all duration-300 ease-in-out gap-3 overflow-x-hidden ${isOpen ? 'w-64 px-4 py-8' : 'w-[80px] px-3 py-8 items-center'}`}>
 
-        {/* Toggle button */}
+        {/* Toggle button & Main Navigation */}
         <div className={`flex items-center mb-2 ${isOpen ? 'justify-between px-2' : 'justify-center w-full'}`}>
           {isOpen && (
-            <h3 className="text-xs font-bold text-[#a9aca9] uppercase tracking-wider">Branches</h3>
+            <h3 className="text-xs font-bold text-[#a9aca9] uppercase tracking-wider">Menu</h3>
           )}
           <button
             onClick={toggleDesktop}
@@ -180,6 +184,48 @@ export default function SidebarBranches({ mobileOpen = false, onMobileClose }: S
             {isOpen ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
           </button>
         </div>
+
+        {/* Desktop Navigation Links */}
+        <div className="space-y-1 w-full flex flex-col items-center mb-4">
+          {navLinks.map((link) => {
+            const isActive = link.exact ? pathname === link.href : pathname.startsWith(link.href)
+            const Icon = link.icon
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                title={!isOpen ? link.label : undefined}
+                className={`relative flex items-center ${isOpen ? 'justify-start px-3' : 'justify-center px-0'} py-2.5 w-full text-sm font-semibold rounded-lg transition-all duration-200 ease-out group ${
+                  isActive
+                    ? 'text-[#1fce7e] bg-[#1fce7e]/10 ring-1 ring-[#1fce7e]/20'
+                    : 'text-[#a9aca9] hover:text-[#eaebe9] hover:bg-white/5'
+                }`}
+              >
+                {isActive && isOpen && (
+                  <motion.span
+                    layoutId="sidebar-active-bar"
+                    className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 rounded-full bg-[#1fce7e]"
+                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                  />
+                )}
+                <div className={`flex items-center gap-3 truncate ${!isOpen ? 'justify-center mx-auto' : ''}`}>
+                  {link.isWhatsApp
+                    ? <WhatsAppIcon className={`w-[16px] h-[16px] shrink-0 transition-transform duration-200 ${isActive ? '' : 'opacity-60 group-hover:opacity-100'}`} />
+                    : Icon && <Icon className={`w-[16px] h-[16px] shrink-0 transition-transform duration-200 ${isActive ? 'text-[#1fce7e]' : ''}`} />
+                  }
+                  {isOpen && <span className="truncate">{link.label}</span>}
+                </div>
+              </Link>
+            )
+          })}
+        </div>
+
+        {/* Branches Header */}
+        {isOpen && (
+          <div className="flex items-center justify-between px-2 mb-1 mt-2">
+            <h3 className="text-xs font-bold text-[#a9aca9] uppercase tracking-wider">Branches</h3>
+          </div>
+        )}
 
         {branchList(isOpen)}
 

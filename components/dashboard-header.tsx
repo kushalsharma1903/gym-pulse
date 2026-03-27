@@ -20,14 +20,7 @@ export default function DashboardHeader() {
   return (
     <header
       className="sticky top-0 z-[100] bg-[#080b0a]/80 backdrop-blur-2xl transition-all duration-300"
-      style={{
-        borderBottom: isScrolled
-          ? '1px solid rgba(242,239,233,0.08)'
-          : '1px solid transparent',
-      }}
     >
-      {/* Ultra-thin bottom border using gradient line (Kinetic Obsidian pattern) */}
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#1fce7e]/10 to-transparent pointer-events-none" />
       
       <div className="max-w-[1400px] mx-auto px-4 md:px-6 h-[56px] md:h-[60px] flex items-center justify-between gap-4 md:gap-0 relative">
         {/* Logo + Gym Name */}
