@@ -78,10 +78,12 @@ export default function DashboardNav() {
       )}
 
       {/* Mobile Sidebar Overlay */}
-      <SidebarBranches
-        mobileOpen={mobileSidebarOpen}
-        onMobileClose={() => setMobileSidebarOpen(false)}
-      />
+      <div className="md:hidden">
+        <SidebarBranches
+          mobileOpen={mobileSidebarOpen}
+          onMobileClose={() => setMobileSidebarOpen(false)}
+        />
+      </div>
 
       {/* Mobile Menu — fixed full-width panel below the header */}
       <AnimatePresence>
