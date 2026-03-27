@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { LayoutDashboard, Settings, FileText, Menu, X } from 'lucide-react'
+import { LayoutDashboard, Settings, FileText, Menu, X, GitBranch } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import SidebarBranches from './sidebar-branches'
 import { useBranch } from '@/app/context/BranchContext'
@@ -27,6 +27,7 @@ const links = [
 export default function DashboardNav() {
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
   const { subscriptionTier } = useBranch()
   const isBusiness = subscriptionTier === 'business'
 
@@ -113,6 +114,26 @@ export default function DashboardNav() {
         </AnimatePresence>
       </motion.button>
 
+      {/* Mobile Branch Sidebar toggle — Business plan only */}
+      {isBusiness && (
+        <motion.button
+          onClick={() => setMobileSidebarOpen(true)}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="md:hidden flex items-center justify-center p-2 rounded-lg hover:bg-white/5 transition-colors"
+          aria-label="Switch branch"
+          title="Switch branch"
+        >
+          <GitBranch className="w-5 h-5 text-[#a9aca9]" />
+        </motion.button>
+      )}
+
+      {/* Mobile Sidebar Overlay */}
+      <SidebarBranches
+        mobileOpen={mobileSidebarOpen}
+        onMobileClose={() => setMobileSidebarOpen(false)}
+      />
+
       {/* Mobile Menu — fixed full-width panel below the header */}
       <AnimatePresence>
         {mobileMenuOpen && (
@@ -138,12 +159,6 @@ export default function DashboardNav() {
               style={{ maxHeight: 'calc(100vh - 60px)' }}
             >
               <div className="flex flex-col gap-1 p-4">
-                {/* Branch switcher — Business plan only */}
-                {isBusiness && (
-                  <div className="mb-4 pb-4 border-b border-white/8">
-                    <SidebarBranches />
-                  </div>
-                )}
                 {links.map((link) => {
                   const isActive = link.exact ? pathname === link.href : pathname.startsWith(link.href)
                   const Icon = link.icon
