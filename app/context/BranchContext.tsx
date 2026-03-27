@@ -2,7 +2,6 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
-import { useRouter } from 'next/navigation'
 
 export type Gym = { 
   id: string
@@ -36,7 +35,6 @@ export function BranchProvider({
   const [currentGym, setCurrentGym] = useState<Gym | null>(null)
   const [allGyms, setAllGyms] = useState<Gym[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const router = useRouter()
   
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -84,7 +82,7 @@ export function BranchProvider({
       setCurrentGym(target)
       localStorage.setItem('selected_gym_id', gymId)
       document.cookie = `selected_gym_id=${gymId}; path=/; max-age=31536000`
-      router.refresh()
+      window.location.reload()
     }
   }
 
