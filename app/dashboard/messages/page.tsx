@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
 import MessagesClient from '@/components/messages-client'
 
 export default async function MessagesPage() {
@@ -8,12 +9,31 @@ export default async function MessagesPage() {
 
   if (!authData?.user) redirect('/')
 
-  // Fetch gym data
-  const { data: gymData } = await supabase
-    .from('gyms')
-    .select('id, gym_name, phone')
-    .eq('owner_id', authData.user.id)
-    .single()
+  const cookieStore = await cookies()
+  const selectedGymId = cookieStore.get('selected_gym_id')?.value
+
+  let gymData = null
+
+  if (selectedGymId) {
+    const { data } = await supabase
+      .from('gyms')
+      .select('id, gym_name, phone')
+      .eq('id', selectedGymId)
+      .eq('owner_id', authData.user.id)
+      .maybeSingle()
+    gymData = data
+  }
+
+  if (!gymData) {
+    const { data } = await supabase
+      .from('gyms')
+      .select('id, gym_name, phone')
+      .eq('owner_id', authData.user.id)
+      .order('created_at', { ascending: true })
+      .limit(1)
+      .maybeSingle()
+    gymData = data
+  }
 
   if (!gymData) {
     return (

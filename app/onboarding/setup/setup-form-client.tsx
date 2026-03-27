@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { Building2, User, Phone, MessageCircle, MapPin, Loader2, ArrowLeft } from 'lucide-react'
-import { createGymAction } from '../actions'
+import { createGymAction, createBranchAction } from '../actions'
 
 interface FormState {
   gym_name: string
@@ -14,7 +14,7 @@ interface FormState {
   city: string
 }
 
-export default function GymSetupFormClient() {
+export default function GymSetupFormClient({ isNewBranch = false }: { isNewBranch?: boolean }) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -47,12 +47,22 @@ export default function GymSetupFormClient() {
     const fd = new FormData()
     Object.entries(form).forEach(([k, v]) => fd.append(k, v))
 
-    const result = await createGymAction(fd)
+    let result;
+    if (isNewBranch) {
+      result = await createBranchAction(fd)
+    } else {
+      result = await createGymAction(fd)
+    }
 
     if (result?.error) {
       setError(result.error)
       setLoading(false)
       return
+    }
+
+    if (isNewBranch && result?.gymId) {
+      localStorage.setItem('selected_gym_id', result.gymId)
+      document.cookie = `selected_gym_id=${result.gymId}; path=/; max-age=31536000`
     }
 
     // Success → redirect to dashboard with toast flag

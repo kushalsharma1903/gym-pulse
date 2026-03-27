@@ -9,10 +9,12 @@ import Cropper from 'react-easy-crop'
 import { motion, AnimatePresence } from 'framer-motion'
 import { getCroppedImg } from '@/utils/crop-image'
 import { useGym } from '@/components/gym-context'
+import { useBranch } from '@/app/context/BranchContext'
 import Paywall from '@/components/paywall'
 
 export default function SettingsPage() {
   const { updateGymDetails } = useGym()
+  const { currentGym } = useBranch()
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -53,27 +55,19 @@ export default function SettingsPage() {
         const { data: authData, error: authError } = await supabase.auth.getUser()
         if (authError || !authData?.user) throw new Error('Not authenticated')
 
-        const { data: gymData, error: gymError } = await supabase
-          .from('gyms')
-          .select('id, gym_name, owner_name, phone, whatsapp_number, address, logo_url')
-          .eq('owner_id', authData.user.id)
-          .single()
-
-        if (gymError && gymError.code !== 'PGRST116') throw gymError
-
-        if (gymData) {
-          setUserGymId(gymData.id)
+        if (currentGym) {
+          setUserGymId(currentGym.id)
           setFormData({
-            gym_name: gymData.gym_name || '',
-            owner_name: gymData.owner_name || '',
-            phone: gymData.phone || '',
-            whatsapp_number: gymData.whatsapp_number || '',
-            address: gymData.address || '',
-            logo_url: gymData.logo_url || ''
+            gym_name: currentGym.gym_name || '',
+            owner_name: currentGym.owner_name || '',
+            phone: currentGym.phone || '',
+            whatsapp_number: currentGym.whatsapp_number || '',
+            address: currentGym.address || '',
+            logo_url: currentGym.logo_url || ''
           })
           updateGymDetails({ 
-            gymName: gymData.gym_name || 'GymPulse', 
-            logoUrl: gymData.logo_url || null 
+            gymName: currentGym.gym_name || 'GymPulse', 
+            logoUrl: currentGym.logo_url || null 
           })
         }
 
@@ -93,8 +87,10 @@ export default function SettingsPage() {
       }
     }
 
-    loadSettings()
-  }, [])
+    if (currentGym) {
+      loadSettings()
+    }
+  }, [currentGym])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target

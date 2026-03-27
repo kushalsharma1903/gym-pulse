@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { createClient } from '@/utils/supabase/client'
+import { useBranch } from '@/app/context/BranchContext'
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -32,37 +33,32 @@ export default function ReportsPage() {
     const [loading, setLoading] = useState(true)
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
     const [isYearDropdownOpen, setIsYearDropdownOpen] = useState(false)
+    const { currentGym, isLoading: isBranchLoading } = useBranch()
 
     useEffect(() => {
         async function fetchData() {
+            if (!currentGym) return
             setLoading(true)
             const supabase = createClient()
-            const { data: { user } } = await supabase.auth.getUser()
-            if (!user) return
-            
-            const { data: gym } = await supabase
-                .from('gyms')
-                .select('id')
-                .eq('owner_id', user.id)
-                .single()
-            
-            if (!gym) return
             
             const { data: membersData } = await supabase
                 .from('members')
                 .select('*')
-                .eq('gym_id', gym.id)
+                .eq('gym_id', currentGym.id)
 
             const { data: historyData } = await supabase
                 .from('membership_history')
                 .select('*')
-                .eq('gym_id', gym.id)
+                .eq('gym_id', currentGym.id)
             
             setMembers([...(membersData || []), ...(historyData || [])])
             setLoading(false)
         }
-        fetchData()
-    }, [])
+        
+        if (!isBranchLoading) {
+            fetchData()
+        }
+    }, [currentGym, isBranchLoading])
 
     const today = new Date()
     

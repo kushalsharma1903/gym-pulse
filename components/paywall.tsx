@@ -8,15 +8,55 @@ import { createClient } from '@/utils/supabase/client'
 
 type PlanDuration = 'monthly' | 'halfyearly' | 'yearly'
 
-export default function Paywall({ mode = 'expired' }: { mode?: 'expired' | 'upgrade' }) {
+export default function Paywall({ mode = 'expired', children }: { mode?: 'expired' | 'upgrade' | 'branch', children?: React.ReactNode }) {
   const isUpgrade = mode === 'upgrade'
+  const isBranch = mode === 'branch'
   const [duration, setDuration] = useState<PlanDuration>('monthly')
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isVerifying, setIsVerifying] = useState(false)
   const [paymentSuccess, setPaymentSuccess] = useState(false)
+  const [checkingBranchAccess, setCheckingBranchAccess] = useState(mode === 'branch')
+  const [branchStatus, setBranchStatus] = useState<'allow' | 'limit_reached' | 'upgrade' | null>(null)
 
   const isLive = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID?.startsWith('rzp_live_')
+
+  useEffect(() => {
+    if (mode !== 'branch') {
+       setCheckingBranchAccess(false)
+       return
+    }
+    
+    const checkBranchAccess = async () => {
+      try {
+        const supabase = createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+        
+        const { data: profile } = await supabase.from('profiles').select('subscription_tier').eq('id', user.id).single()
+        const { data: gyms } = await supabase.from('gyms').select('id').eq('owner_id', user.id)
+        
+        const count = gyms?.length || 0
+        const tier = profile?.subscription_tier || 'free'
+        
+        if (tier === 'business') {
+          if (count < 3) {
+            setBranchStatus('allow')
+          } else {
+            setBranchStatus('limit_reached')
+          }
+        } else {
+          setBranchStatus('upgrade')
+        }
+      } catch (err) {
+         console.error(err)
+      } finally {
+        setCheckingBranchAccess(false)
+      }
+    }
+    
+    checkBranchAccess()
+  }, [mode])
 
   const plans = {
     pro: {
@@ -141,6 +181,45 @@ export default function Paywall({ mode = 'expired' }: { mode?: 'expired' | 'upgr
     window.location.href = '/'
   }
 
+  if (checkingBranchAccess) {
+    return (
+      <div className="min-h-screen bg-[#080b0a] font-sans flex flex-col items-center justify-center p-6 text-[#eaebe9]">
+         <Loader2 className="h-8 w-8 animate-spin text-emerald-500 mb-4" />
+         <p className="text-zinc-400 font-medium tracking-wide">Checking branch limits...</p>
+      </div>
+    )
+  }
+
+  if (mode === 'branch' && branchStatus === 'allow') {
+    return <>{children}</>
+  }
+
+  if (mode === 'branch' && branchStatus === 'limit_reached') {
+    return (
+      <div className="min-h-screen bg-[#080b0a] font-sans flex flex-col items-center justify-center p-6 text-[#eaebe9]">
+         <div className="max-w-md w-full text-center space-y-6 bg-[#0f0f0f] border border-white/5 p-8 rounded-3xl shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 blur-[50px] pointer-events-none rounded-full" />
+            
+            <div className="inline-flex items-center justify-center p-4 rounded-full bg-blue-500/10 mb-2">
+              <Shield className="h-8 w-8 text-blue-400" />
+            </div>
+            
+            <h2 className="text-2xl font-black tracking-tight text-white">Branch Limit Reached</h2>
+            <p className="text-zinc-400 text-sm leading-relaxed">
+              You have reached the maximum limit of 3 branches allowed on the Business plan. 
+              To manage more locations, please contact our enterprise support team.
+            </p>
+            
+            <div className="pt-4">
+              <Link href="/dashboard" className="inline-flex items-center justify-center w-full bg-white/5 hover:bg-white/10 text-white font-bold py-3.5 rounded-xl border border-white/10 transition-colors">
+                Return to Dashboard
+              </Link>
+            </div>
+         </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-[#080b0a] font-sans flex flex-col items-center justify-center p-6 sm:p-12 text-[#eaebe9] relative overflow-hidden">
       {/* Background Glow */}
@@ -173,7 +252,7 @@ export default function Paywall({ mode = 'expired' }: { mode?: 'expired' | 'upgr
             animate={{ opacity: 1, y: 0 }}
             className="text-4xl md:text-5xl font-black tracking-tight"
           >
-            {isUpgrade ? 'Upgrade your plan' : 'Your access has expired'}
+            {isBranch ? 'Upgrade to create branches' : isUpgrade ? 'Upgrade your plan' : 'Your access has expired'}
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0, y: 10 }}
@@ -181,7 +260,9 @@ export default function Paywall({ mode = 'expired' }: { mode?: 'expired' | 'upgr
             transition={{ delay: 0.1 }}
             className="text-lg text-zinc-400 max-w-xl mx-auto"
           >
-            {isUpgrade
+            {isBranch
+              ? 'Multi-branch support is exclusive to the Business Plan. Upgrade to Business to manage multiple gym locations seamlessly from one account.'
+              : isUpgrade
               ? 'Choose a plan that works for you and unlock the full GymPulse experience.'
               : 'Choose a plan to restore access and continue managing your gym with GymPulse.'}
           </motion.p>

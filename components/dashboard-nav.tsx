@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { LayoutDashboard, Settings, FileText, Menu, X } from 'lucide-react'
 import { useState, useEffect } from 'react'
+import SidebarBranches from './sidebar-branches'
 
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
@@ -134,6 +135,9 @@ export default function DashboardNav() {
               style={{ maxHeight: 'calc(100vh - 60px)' }}
             >
               <div className="flex flex-col gap-1 p-4">
+                <div className="mb-4 pb-4 border-b border-white/8">
+                  <SidebarBranches />
+                </div>
                 {links.map((link) => {
                   const isActive = link.exact ? pathname === link.href : pathname.startsWith(link.href)
                   const Icon = link.icon

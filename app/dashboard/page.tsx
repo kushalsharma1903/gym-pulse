@@ -24,12 +24,35 @@ export default async function DashboardPage({
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: gymDataTemp, error: gymError } = await supabase
-    .from('gyms')
-    .select('id, gym_name')
-    .eq('owner_id', user.id)
-    .limit(1)
-    .maybeSingle()
+  const selectedGymId = cookieStore.get('selected_gym_id')?.value
+
+  let gymDataTemp = null
+  let gymError = null
+
+  if (selectedGymId) {
+    const { data, error } = await supabase
+      .from('gyms')
+      .select('id, gym_name, phone, whatsapp_number, wa_template')
+      .eq('id', selectedGymId)
+      .eq('owner_id', user.id)
+      .maybeSingle()
+    
+    gymDataTemp = data
+    gymError = error
+  }
+
+  if (!gymDataTemp) {
+    const { data, error } = await supabase
+      .from('gyms')
+      .select('id, gym_name, phone, whatsapp_number, wa_template')
+      .eq('owner_id', user.id)
+      .order('created_at', { ascending: true })
+      .limit(1)
+      .maybeSingle()
+
+    gymDataTemp = data
+    gymError = error
+  }
 
   const gymData: any = gymDataTemp
 

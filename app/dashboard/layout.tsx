@@ -1,7 +1,10 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
 import DashboardHeader from '@/components/dashboard-header'
 import { GymProvider } from '@/components/gym-context'
+import { BranchProvider } from '@/app/context/BranchContext'
+import SidebarBranches from '@/components/sidebar-branches'
 import Paywall from '@/components/paywall'
 import Link from 'next/link'
 import TrialBanner from '@/components/trial-banner'
@@ -12,12 +15,31 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   if (!authData?.user) redirect('/')
 
-  // Securely fetch gym context
-  const { data: gymData } = await supabase
-    .from('gyms')
-    .select('id, gym_name, logo_url')
-    .eq('owner_id', authData.user.id)
-    .single()
+  const cookieStore = await cookies()
+  const selectedGymId = cookieStore.get('selected_gym_id')?.value
+
+  let gymData = null
+
+  if (selectedGymId) {
+    const { data } = await supabase
+      .from('gyms')
+      .select('id, gym_name, logo_url')
+      .eq('id', selectedGymId)
+      .eq('owner_id', authData.user.id)
+      .maybeSingle()
+    gymData = data
+  }
+
+  if (!gymData) {
+    const { data } = await supabase
+      .from('gyms')
+      .select('id, gym_name, logo_url')
+      .eq('owner_id', authData.user.id)
+      .order('created_at', { ascending: true })
+      .limit(1)
+      .maybeSingle()
+    gymData = data
+  }
 
   const gymName = gymData?.gym_name || 'GymPulse'
   const logoUrl = gymData?.logo_url || null
@@ -81,12 +103,21 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }
 
   return (
-    <GymProvider initialGymName={gymName} initialLogoUrl={logoUrl}>
-      <div className="min-h-screen bg-[#080b0a] text-[#eaebe9] font-sans" style={{ '--tw-selection-bg': 'rgba(31,206,126,0.2)' } as React.CSSProperties}>
-        {isTrialActive && <TrialBanner daysLeft={trialDaysLeft} />}
-        <DashboardHeader />
-        {children}
-      </div>
-    </GymProvider>
+    <BranchProvider initialGymId={gymData?.id} subscriptionTier={profile?.subscription_tier || 'free'}>
+      <GymProvider initialGymName={gymName} initialLogoUrl={logoUrl}>
+        <div className="min-h-screen bg-[#080b0a] text-[#eaebe9] font-sans" style={{ '--tw-selection-bg': 'rgba(31,206,126,0.2)' } as React.CSSProperties}>
+          {isTrialActive && <TrialBanner daysLeft={trialDaysLeft} />}
+          <DashboardHeader />
+          <div className="max-w-[1400px] mx-auto w-full flex items-start">
+            <div className="hidden md:block w-64 shrink-0 px-4 py-8 border-r border-white/8 sticky top-[60px] h-[calc(100vh-60px)] overflow-y-auto m-0">
+              <SidebarBranches />
+            </div>
+            <div className="flex-1 w-full min-w-0">
+              {children}
+            </div>
+          </div>
+        </div>
+      </GymProvider>
+    </BranchProvider>
   )
 }
