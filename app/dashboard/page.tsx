@@ -37,7 +37,7 @@ export default async function DashboardPage({
   if (gymData?.id) {
     const { data: subData } = await supabase
       .from('subscriptions')
-      .select('plan')
+      .select('subscription_tier')
       .eq('gym_id', gymData.id)
       .maybeSingle()
     subscription = subData
@@ -108,7 +108,7 @@ export default async function DashboardPage({
           <MembersTable 
             members={members} 
             historicalRevenue={currentYearRevenue}
-            planTier={subscription?.plan ?? 'free'}
+            planTier={subscription?.subscription_tier ?? 'free'}
             gym={{
               id: gymData?.id || '',
               gym_name: gymName,
