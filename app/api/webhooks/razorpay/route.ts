@@ -55,6 +55,22 @@ export async function POST(req: Request) {
             subscription_end_date: nextEndDate
           })
           .eq('id', notes.userId)
+
+        const { data: gym } = await supabase
+          .from('gyms')
+          .select('id')
+          .eq('owner_id', notes.userId)
+          .single()
+
+        if (gym?.id) {
+          await supabase
+            .from('subscriptions')
+            .update({
+              status: 'active',
+              plan: notes.tier
+            })
+            .eq('gym_id', gym.id)
+        }
       }
     }
 
