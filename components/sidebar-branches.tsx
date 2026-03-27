@@ -6,7 +6,7 @@ import { useRouter, usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { navLinks, WhatsAppIcon } from './dashboard-nav'
+import { navLinks, WhatsAppIcon } from './nav-config'
 
 interface SidebarBranchesProps {
   /** Mobile-only: whether the overlay is open (controlled by parent) */
@@ -23,9 +23,14 @@ export default function SidebarBranches({ mobileOpen = false, onMobileClose }: S
   const [isOpen, setIsOpen] = useState(true) // desktop collapsible state
 
   useEffect(() => {
-    // Restore desktop sidebar collapsed state
+    // Restore desktop sidebar collapsed state. Default is expanded (true).
     const saved = localStorage.getItem('sidebar_open')
-    if (saved !== null) setIsOpen(saved === 'true')
+    if (saved !== null) {
+      setIsOpen(saved === 'true')
+    } else {
+      setIsOpen(true)
+      localStorage.setItem('sidebar_open', 'true')
+    }
 
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search)
