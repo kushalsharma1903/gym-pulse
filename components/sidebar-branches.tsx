@@ -23,14 +23,9 @@ export default function SidebarBranches({ mobileOpen = false, onMobileClose }: S
   const [isOpen, setIsOpen] = useState(true) // desktop collapsible state
 
   useEffect(() => {
-    // Restore desktop sidebar collapsed state. Default is expanded (true).
-    const saved = localStorage.getItem('sidebar_open')
-    if (saved !== null) {
-      setIsOpen(saved === 'true')
-    } else {
-      setIsOpen(true)
-      localStorage.setItem('sidebar_open', 'true')
-    }
+    // Always start desktop sidebar expanded on page load
+    localStorage.setItem('sidebar_open', 'true')
+    setIsOpen(true)
 
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search)
