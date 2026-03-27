@@ -60,13 +60,11 @@ export default function GymSetupFormClient({ isNewBranch = false }: { isNewBranc
       return
     }
 
-    if (isNewBranch && result?.gymId) {
-      localStorage.setItem('selected_gym_id', result.gymId)
-      document.cookie = `selected_gym_id=${result.gymId}; path=/; max-age=31536000`
+    if (isNewBranch) {
+      router.push('/dashboard?branch_added=1')
+    } else {
+      router.push('/dashboard?onboarded=1')
     }
-
-    // Success → redirect to dashboard with toast flag
-    router.push('/dashboard?onboarded=1')
   }
 
   const fields: {

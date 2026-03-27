@@ -4,10 +4,24 @@ import { useBranch } from '@/app/context/BranchContext'
 import { motion } from 'framer-motion'
 import { Plus, Check, MapPin } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 export default function SidebarBranches() {
   const { currentGym, allGyms, switchBranch, isLoading, subscriptionTier } = useBranch()
   const router = useRouter()
+  const [showToast, setShowToast] = useState(false)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search)
+      if (urlParams.get('branch_added') === '1') {
+        setShowToast(true)
+        const t = setTimeout(() => setShowToast(false), 4500)
+        window.history.replaceState({}, '', '/dashboard')
+        return () => clearTimeout(t)
+      }
+    }
+  }, [])
 
   if (isLoading) {
     return (
@@ -81,6 +95,16 @@ export default function SidebarBranches() {
           </div>
         )}
       </div>
+
+      {showToast && (
+        <div 
+          className="fixed bottom-6 right-6 z-[9999] flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-[#0f1a14] shadow-2xl shadow-emerald-900/40 text-sm font-semibold text-emerald-300"
+          style={{ borderLeft: '3px solid #1FCE7E', border: '1px solid rgba(31,206,126,0.3)', borderLeftWidth: 3, borderLeftColor: '#1FCE7E' }}
+        >
+          <Check className="h-5 w-5 text-emerald-400" />
+          Branch created! Click it in the sidebar to switch.
+        </div>
+      )}
     </div>
   )
 }
