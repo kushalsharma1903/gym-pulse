@@ -124,7 +124,7 @@ export default function SidebarBranches({ mobileOpen = false, onMobileClose }: S
   // ─── Loading skeleton ─────────────────────────────────────────────────────────
   if (isLoading) {
     return (
-      <div className={`hidden md:flex flex-col shrink-0 border-r border-white/8 sticky top-[60px] h-[calc(100vh-60px)] overflow-y-auto m-0 transition-all duration-300 ease-in-out ${isOpen ? 'w-64 px-4 py-8' : 'w-[80px] px-3 py-8 items-center'}`}>
+      <div className={`hidden md:flex flex-col shrink-0 sticky top-[60px] h-[calc(100vh-60px)] overflow-y-auto m-0 transition-all duration-300 ease-in-out ${isOpen ? 'w-64 px-4 py-8' : 'w-[80px] px-3 py-8 items-center'}`}>
         <div className="animate-pulse space-y-3 px-2 w-full">
           <div className="h-4 bg-white/5 rounded w-20" />
           <div className="h-8 bg-white/5 rounded-lg w-full" />
@@ -144,7 +144,7 @@ export default function SidebarBranches({ mobileOpen = false, onMobileClose }: S
             onClick={onMobileClose}
           />
           {/* Drawer */}
-          <div className="md:hidden fixed top-0 left-0 z-[310] h-screen w-[260px] bg-[#0c0f0e] border-r border-white/8 flex flex-col gap-3 px-4 py-6 shadow-2xl overflow-y-auto">
+          <div className="md:hidden fixed top-0 left-0 z-[310] h-screen w-[260px] bg-[#0c0f0e] flex flex-col gap-3 px-4 py-6 shadow-2xl overflow-y-auto">
             {/* Header row */}
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-xs font-bold text-[#a9aca9] uppercase tracking-wider">Branches</h3>
@@ -165,7 +165,7 @@ export default function SidebarBranches({ mobileOpen = false, onMobileClose }: S
       )}
 
       {/* ── DESKTOP SIDEBAR ──────────────────────────────────────── */}
-      <div className={`hidden md:flex flex-col shrink-0 border-r border-white/8 sticky top-[60px] h-[calc(100vh-60px)] overflow-y-auto m-0 transition-all duration-300 ease-in-out gap-3 overflow-x-hidden ${isOpen ? 'w-64 px-4 py-8' : 'w-[80px] px-3 py-8 items-center'}`}>
+      <div className={`hidden md:flex flex-col shrink-0 sticky top-[60px] h-[calc(100vh-60px)] overflow-y-auto m-0 transition-all duration-300 ease-in-out gap-3 overflow-x-hidden ${isOpen ? 'w-64 px-4 py-8' : 'w-[80px] px-3 py-8 items-center'}`}>
 
         {/* Toggle button */}
         <div className={`flex items-center mb-2 ${isOpen ? 'justify-between px-2' : 'justify-center w-full'}`}>
