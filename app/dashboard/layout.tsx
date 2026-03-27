@@ -17,13 +17,14 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   const cookieStore = await cookies()
   const selectedGymId = cookieStore.get('selected_gym_id')?.value
+  console.log('COOKIE GYM ID (LAYOUT):', selectedGymId)
 
   let gymData = null
 
-  if (selectedGymId) {
+  if (selectedGymId && selectedGymId !== 'undefined' && selectedGymId !== 'null') {
     const { data } = await supabase
       .from('gyms')
-      .select('id, gym_name, logo_url')
+      .select('*')
       .eq('id', selectedGymId)
       .eq('owner_id', authData.user.id)
       .maybeSingle()
@@ -33,13 +34,15 @@ export default async function DashboardLayout({ children }: { children: React.Re
   if (!gymData) {
     const { data } = await supabase
       .from('gyms')
-      .select('id, gym_name, logo_url')
+      .select('*')
       .eq('owner_id', authData.user.id)
       .order('created_at', { ascending: true })
       .limit(1)
-      .maybeSingle()
+      .single()
     gymData = data
   }
+
+  console.log('FINAL GYM ID USED (LAYOUT):', gymData?.id ?? 'NULL - NO GYM FOUND')
 
   const gymName = gymData?.gym_name || 'GymPulse'
   const logoUrl = gymData?.logo_url || null

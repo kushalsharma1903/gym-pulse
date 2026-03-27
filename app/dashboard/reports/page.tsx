@@ -11,13 +11,14 @@ export default async function ReportsPage() {
 
     const cookieStore = await cookies()
     const selectedGymId = cookieStore.get('selected_gym_id')?.value
+    console.log('COOKIE GYM ID (REPORTS):', selectedGymId)
 
     let gymData = null
 
-    if (selectedGymId) {
+    if (selectedGymId && selectedGymId !== 'undefined' && selectedGymId !== 'null') {
       const { data } = await supabase
         .from('gyms')
-        .select('id, gym_name')
+        .select('*')
         .eq('id', selectedGymId)
         .eq('owner_id', authData.user.id)
         .maybeSingle()
@@ -27,13 +28,15 @@ export default async function ReportsPage() {
     if (!gymData) {
       const { data } = await supabase
         .from('gyms')
-        .select('id, gym_name')
+        .select('*')
         .eq('owner_id', authData.user.id)
         .order('created_at', { ascending: true })
         .limit(1)
-        .maybeSingle()
+        .single()
       gymData = data
     }
+
+    console.log('FINAL GYM ID USED (REPORTS):', gymData?.id ?? 'NULL - NO GYM FOUND')
 
     if (!gymData) {
       return (

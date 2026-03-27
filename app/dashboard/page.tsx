@@ -24,16 +24,17 @@ export default async function DashboardPage({
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const selectedGymId = cookieStore.get('selected_gym_id')?.value
+  const cookieGymId = cookieStore.get('selected_gym_id')?.value
+  console.log('COOKIE GYM ID:', cookieGymId)
 
   let gymDataTemp = null
   let gymError = null
 
-  if (selectedGymId) {
+  if (cookieGymId && cookieGymId !== 'undefined' && cookieGymId !== 'null') {
     const { data, error } = await supabase
       .from('gyms')
-      .select('id, gym_name, phone, whatsapp_number, wa_template')
-      .eq('id', selectedGymId)
+      .select('*')
+      .eq('id', cookieGymId)
       .eq('owner_id', user.id)
       .maybeSingle()
     
@@ -42,21 +43,20 @@ export default async function DashboardPage({
   }
 
   if (!gymDataTemp) {
-    console.log(`[DEBUG] No gym found for selectedGymId: ${selectedGymId}. Falling back to first gym. Error:`, gymError)
     const { data, error } = await supabase
       .from('gyms')
-      .select('id, gym_name, phone, whatsapp_number, wa_template')
+      .select('*')
       .eq('owner_id', user.id)
       .order('created_at', { ascending: true })
       .limit(1)
-      .maybeSingle()
+      .single()
 
     gymDataTemp = data
     gymError = error
   }
 
   const gymData: any = gymDataTemp
-  console.log(`[DEBUG] Final gymData.id being used:`, gymData?.id)
+  console.log('FINAL GYM ID USED:', gymData?.id ?? 'NULL - NO GYM FOUND')
 
   let subscription: any = null
   if (gymData?.id) {

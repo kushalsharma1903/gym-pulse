@@ -15,10 +15,11 @@ export default async function SettingsPage() {
   if (!user) redirect('/login')
 
   const selectedGymId = cookieStore.get('selected_gym_id')?.value
+  console.log('COOKIE GYM ID (SETTINGS):', selectedGymId)
 
   let gymData = null
 
-  if (selectedGymId) {
+  if (selectedGymId && selectedGymId !== 'undefined' && selectedGymId !== 'null') {
     const { data } = await supabase
       .from('gyms')
       .select('*')
@@ -35,9 +36,11 @@ export default async function SettingsPage() {
       .eq('owner_id', user.id)
       .order('created_at', { ascending: true })
       .limit(1)
-      .maybeSingle()
+      .single()
     gymData = data
   }
+
+  console.log('FINAL GYM ID USED (SETTINGS):', gymData?.id ?? 'NULL - NO GYM FOUND')
 
   const { data: profileData } = await supabase
     .from('profiles')
