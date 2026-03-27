@@ -16,16 +16,16 @@ export default async function DashboardLayout({ children }: { children: React.Re
   if (!authData?.user) redirect('/')
 
   const cookieStore = await cookies()
-  const selectedGymId = cookieStore.get('selected_gym_id')?.value
-  console.log('COOKIE GYM ID (LAYOUT):', selectedGymId)
+  let gymId = cookieStore.get('selected_gym_id')?.value
+  console.log('COOKIE GYM ID (LAYOUT):', gymId)
 
   let gymData = null
 
-  if (selectedGymId && selectedGymId !== 'undefined' && selectedGymId !== 'null') {
+  if (gymId && gymId !== 'undefined' && gymId !== 'null') {
     const { data } = await supabase
       .from('gyms')
       .select('*')
-      .eq('id', selectedGymId)
+      .eq('id', gymId)
       .eq('owner_id', authData.user.id)
       .maybeSingle()
     gymData = data
@@ -40,6 +40,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       .limit(1)
       .single()
     gymData = data
+    if (data?.id) gymId = data.id
   }
 
   console.log('FINAL GYM ID USED (LAYOUT):', gymData?.id ?? 'NULL - NO GYM FOUND')

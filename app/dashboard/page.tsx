@@ -24,17 +24,17 @@ export default async function DashboardPage({
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const cookieGymId = cookieStore.get('selected_gym_id')?.value
-  console.log('COOKIE GYM ID:', cookieGymId)
+  let gymId = cookieStore.get('selected_gym_id')?.value
+  console.log('COOKIE GYM ID:', gymId)
 
   let gymDataTemp = null
   let gymError = null
 
-  if (cookieGymId && cookieGymId !== 'undefined' && cookieGymId !== 'null') {
+  if (gymId && gymId !== 'undefined' && gymId !== 'null') {
     const { data, error } = await supabase
       .from('gyms')
       .select('*')
-      .eq('id', cookieGymId)
+      .eq('id', gymId)
       .eq('owner_id', user.id)
       .maybeSingle()
     
@@ -53,6 +53,9 @@ export default async function DashboardPage({
 
     gymDataTemp = data
     gymError = error
+    if (data?.id) {
+      gymId = data.id
+    }
   }
 
   const gymData: any = gymDataTemp
@@ -75,11 +78,12 @@ export default async function DashboardPage({
   let currentYearRevenue = 0
   const currentYear = new Date().getFullYear().toString()
 
-  if (gymData?.id) {
+  if (gymId && gymId !== 'undefined' && gymId !== 'null') {
+    console.log('GYM ID USED FOR MEMBERS:', gymId)
     const { data, error } = await supabase
       .from('members')
       .select('*')
-      .eq('gym_id', gymData.id)
+      .eq('gym_id', gymId)
       .order('created_at', { ascending: false })
     
     members = data ?? []
@@ -88,7 +92,7 @@ export default async function DashboardPage({
     const { data: historyData } = await supabase
       .from('membership_history')
       .select('fee_paid, joining_date, plan_months, plan_type')
-      .eq('gym_id', gymData.id)
+      .eq('gym_id', gymId)
       .gte('joining_date', `${parseInt(currentYear) - 1}-01-01`)
     
     if (historyData) {
@@ -107,7 +111,7 @@ export default async function DashboardPage({
       })
     }
   } else {
-    console.log('[DEBUG] gymData is null — members query skipped')
+    console.log('[DEBUG] gymId is null — members query skipped')
   }
 
   return (

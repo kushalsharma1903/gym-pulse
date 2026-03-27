@@ -26,14 +26,34 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     }
   )
 
+  let gymId = cookieStore.get('selected_gym_id')?.value
+
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!gymId || gymId === 'undefined' || gymId === 'null') {
+    if (user) {
+      const { data } = await supabase
+        .from('gyms')
+        .select('id')
+        .eq('owner_id', user.id)
+        .order('created_at', { ascending: true })
+        .limit(1)
+        .single()
+      if (data?.id) gymId = data.id
+    }
+  }
+
+  console.log('GYM ID USED FOR MEMBERS:', gymId)
+
   const { data: member, error } = await supabase
     .from("members")
     .select("*")
     .eq("id", memberId)
+    .eq("gym_id", gymId)
     .single()
 
   if (error || !member) {
-    return <div className="p-6 text-red-500 font-bold text-xl">Member not found</div>
+    return <div className="p-6 text-red-500 font-bold text-xl">Member not found in current gym</div>
   }
 
   // Fetch history for this member

@@ -2,6 +2,7 @@
 
 import { createClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { cookies } from 'next/headers'
 import { addMonths } from 'date-fns'
 
 function formatName(name: string) {
@@ -15,8 +16,23 @@ export async function addMemberAction(formData: FormData) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { error: 'Not authenticated. Please log in again.' }
     
-    const gymId = formData.get('gymId') as string
+    const cookieStore = await cookies()
+    let gymId = cookieStore.get('selected_gym_id')?.value
+
+    if (!gymId || gymId === 'undefined' || gymId === 'null') {
+      const { data } = await supabase
+        .from('gyms')
+        .select('id')
+        .eq('owner_id', user.id)
+        .order('created_at', { ascending: true })
+        .limit(1)
+        .single()
+      if (data?.id) gymId = data.id
+    }
+
     if (!gymId) return { error: 'Gym ID is missing.' }
+    
+    console.log('GYM ID USED FOR MEMBERS:', gymId)
 
     const rawName = formData.get('name') as string
     const phone = formData.get('phone') as string
@@ -101,6 +117,23 @@ export async function updateMemberAction(memberId: string, gymId: string, formDa
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { error: 'Unauthorized' }
 
+    const cookieStore = await cookies()
+    let actualGymId = cookieStore.get('selected_gym_id')?.value
+
+    if (!actualGymId || actualGymId === 'undefined' || actualGymId === 'null') {
+      const { data } = await supabase
+        .from('gyms')
+        .select('id')
+        .eq('owner_id', user.id)
+        .order('created_at', { ascending: true })
+        .limit(1)
+        .single()
+      if (data?.id) actualGymId = data.id
+    }
+    
+    if (!actualGymId) return { error: 'Gym ID is missing.' }
+    console.log('GYM ID USED FOR MEMBERS:', actualGymId)
+
     const rawName = formData.get('name') as string
     const phone = formData.get('phone') as string
     const memberCode = formData.get('memberCode') as string
@@ -115,7 +148,7 @@ export async function updateMemberAction(memberId: string, gymId: string, formDa
     const { data: existingCode } = await supabase
       .from('members')
       .select('id')
-      .eq('gym_id', gymId)
+      .eq('gym_id', actualGymId)
       .eq('member_code', memberCode)
       .neq('id', memberId)
       .maybeSingle()
