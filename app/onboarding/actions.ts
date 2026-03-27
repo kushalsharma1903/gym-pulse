@@ -55,7 +55,12 @@ export async function createGymAction(formData: FormData) {
       return { error: `Gym created but subscription failed: ${subError.message}` }
     }
 
-    return { success: true, gymId: gym.id } // Ensure gymId is returned for createGymAction just in case
+    // 3. Mark onboarding as complete (source of truth for onboarding guard)
+    await supabase
+      .from('profiles')
+      .upsert({ id: user.id, setup_completed: true }, { onConflict: 'id' })
+
+    return { success: true, gymId: gym.id }
   } catch (err: any) {
     return { error: err.message || 'An unexpected error occurred.' }
   }

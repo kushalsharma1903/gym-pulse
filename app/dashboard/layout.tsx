@@ -113,9 +113,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           {isTrialActive && <TrialBanner daysLeft={trialDaysLeft} />}
           <DashboardHeader />
           <div className="max-w-[1400px] mx-auto w-full flex items-start">
-            <div className="hidden md:block w-64 shrink-0 px-4 py-8 border-r border-white/8 sticky top-[60px] h-[calc(100vh-60px)] overflow-y-auto m-0">
-              <SidebarBranches />
-            </div>
+            <SidebarBranches />
             <div className="flex-1 w-full min-w-0">
               {children}
             </div>

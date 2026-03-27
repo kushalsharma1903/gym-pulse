@@ -4,15 +4,8 @@ import { redirect } from 'next/navigation'
 import MembersTable from '@/components/members-table'
 import AddMemberModal from '@/components/add-member-modal'
 import PageEntry from '@/components/ui/page-entry'
-import WelcomeToast from '@/components/welcome-toast'
 
-export default async function DashboardPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ onboarded?: string }>
-}) {
-  const params = await searchParams
-  const showWelcomeToast = params?.onboarded === '1'
+export default async function DashboardPage() {
 
   const cookieStore = await cookies()
   const supabase = createServerClient(
@@ -61,16 +54,53 @@ export default async function DashboardPage({
   const gymData: any = gymDataTemp
   console.log('FINAL GYM ID USED:', gymData?.id ?? 'NULL - NO GYM FOUND')
 
-  let subscription: any = null
-  if (gymData?.id) {
-    const { data: subData } = await supabase
-      .from('subscriptions')
-      .select('plan, status')
-      .eq('gym_id', gymData.id)
+  // Fetch plan tier from the user's profile (account-level, not per-gym)
+  // This means Business plan users can export CSV from ANY branch
+  let { data: profileData } = await supabase
+    .from('profiles')
+    .select('subscription_tier, subscription_status')
+    .eq('id', user.id)
+    .maybeSingle()
+
+  // Retry once if profile data is missing
+  if (!profileData) {
+    console.log('PROFILE DATA MISSING — retrying...')
+    const { data: retryProfile } = await supabase
+      .from('profiles')
+      .select('subscription_tier, subscription_status')
+      .eq('id', user.id)
       .maybeSingle()
-    subscription = subData
-    console.log('SUB DATA:', JSON.stringify(subData))
+    profileData = retryProfile
   }
+
+  // Hard stop — don't silently continue as free plan
+  if (!profileData) {
+    console.log('PROFILE DATA MISSING — showing error UI')
+    return (
+      <PageEntry>
+        <main className="flex flex-col items-center justify-center min-h-[70vh] gap-6 px-6 text-center">
+          <div className="w-16 h-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-3xl">
+            ⚠️
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-xl font-bold text-[#eaebe9]">Something went wrong loading your account</h2>
+            <p className="text-sm text-[#737674] max-w-sm">
+              We couldn&apos;t load your subscription profile. This is usually a temporary issue.
+            </p>
+          </div>
+          <a
+            href="/dashboard"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#1fce7e]/10 border border-[#1fce7e]/20 text-[#1fce7e] font-semibold text-sm hover:bg-[#1fce7e]/20 transition-colors"
+          >
+            ↻ Refresh
+          </a>
+        </main>
+      </PageEntry>
+    )
+  }
+
+  const planTier = (profileData.subscription_tier || 'free').toLowerCase()
+  console.log('PLAN TIER (from profile):', planTier)
   
   const gymName = gymData?.gym_name || 'GymPulse'
   
@@ -116,7 +146,6 @@ export default async function DashboardPage({
 
   return (
     <PageEntry>
-      <WelcomeToast show={showWelcomeToast} />
       <main className="max-w-[1400px] mx-auto px-6 py-8 space-y-6">
           
           {/* Header Section */}
@@ -138,7 +167,7 @@ export default async function DashboardPage({
           <MembersTable 
             members={members} 
             historicalRevenue={currentYearRevenue}
-            planTier={subscription?.status === 'trial' ? 'pro' : (subscription?.plan ?? 'free')}
+            planTier={planTier}
             gym={{
               id: gymData?.id || '',
               gym_name: gymName,

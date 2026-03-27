@@ -8,17 +8,32 @@ export default async function OnboardingPage() {
 
   if (!user) redirect('/login')
 
-  // Safety guard: if gym already exists, skip onboarding
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('setup_completed')
+    .eq('id', user.id)
+    .maybeSingle()
+
+  // If already completed onboarding, send to dashboard
+  if (profile?.setup_completed) redirect('/dashboard')
+
+  // Backfill: if an existing user already has a gym but setup_completed is not set,
+  // mark them as done and redirect — they don't need onboarding
   const { data: gym } = await supabase
     .from('gyms')
     .select('id')
     .eq('owner_id', user.id)
+    .limit(1)
     .maybeSingle()
 
-  if (gym) redirect('/dashboard')
+  if (gym) {
+    await supabase
+      .from('profiles')
+      .upsert({ id: user.id, setup_completed: true }, { onConflict: 'id' })
+    redirect('/dashboard')
+  }
 
-  // Pass the user's display name for a personalised greeting
+  // New user — show onboarding
   const name = user.user_metadata?.full_name?.split(' ')[0] || 'there'
-
   return <OnboardingWelcomeClient name={name} />
 }
