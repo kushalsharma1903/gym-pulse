@@ -42,6 +42,7 @@ export default async function DashboardPage({
   }
 
   if (!gymDataTemp) {
+    console.log(`[DEBUG] No gym found for selectedGymId: ${selectedGymId}. Falling back to first gym. Error:`, gymError)
     const { data, error } = await supabase
       .from('gyms')
       .select('id, gym_name, phone, whatsapp_number, wa_template')
@@ -55,6 +56,7 @@ export default async function DashboardPage({
   }
 
   const gymData: any = gymDataTemp
+  console.log(`[DEBUG] Final gymData.id being used:`, gymData?.id)
 
   let subscription: any = null
   if (gymData?.id) {
