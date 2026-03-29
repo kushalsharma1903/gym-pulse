@@ -80,6 +80,10 @@ const schemaData = {
       "@type": "Organization",
       "name": "GymPulse",
       "url": "https://www.gympulse.co.in",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://www.gympulse.co.in/logo.svg"
+      },
       "contactPoint": {
         "@type": "ContactPoint",
         "contactType": "customer support",
