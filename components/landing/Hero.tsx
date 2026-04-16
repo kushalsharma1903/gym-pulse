@@ -49,24 +49,25 @@ export default function Hero() {
           {/* On mobile: block layout so VerticalCutReveal spans stack naturally as block rows.
               On desktop: flex-col for the controlled vertical reveal effect. */}
           <h1
-            className="m-0 p-0 text-white font-black tracking-tight block md:flex md:flex-col"
+            className="m-0 p-0 text-white font-black tracking-tight text-4xl md:text-5xl lg:text-6xl block md:flex md:flex-col"
             style={{
-              fontSize: "clamp(28px, 7vw, 64px)",
               fontWeight: 800,
               lineHeight: 1.1,
-              writingMode: "horizontal-tb",
-              textOrientation: "mixed",
               width: "100%",
               whiteSpace: "normal",
             }}
           >
-            <VerticalCutReveal delay={0.1} duration={0.7}>
-              Run your gym
-            </VerticalCutReveal>
-            <VerticalCutReveal delay={0.4} duration={0.7} className="text-[rgba(242,239,233,0.35)]">
-              like a pro.
-            </VerticalCutReveal>
-            <VerticalCutReveal delay={0.55} duration={0.7} className="text-zinc-500">
+            {/* Line 1: "Run your gym like a pro." — kept together so it breaks after the period */}
+            <span className="block">
+              <VerticalCutReveal delay={0.1} duration={0.7}>
+                Run your gym
+              </VerticalCutReveal>
+              <VerticalCutReveal delay={0.4} duration={0.7} className="text-[rgba(242,239,233,0.35)]">
+                {" like a pro."}
+              </VerticalCutReveal>
+            </span>
+            {/* Line 2: always sits on its own line */}
+            <VerticalCutReveal delay={0.55} duration={0.7} className="text-zinc-500 block">
               Not a spreadsheet.
             </VerticalCutReveal>
           </h1>

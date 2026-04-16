@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import LandingNav from '@/components/landing/LandingNav'
 import Hero from '@/components/landing/Hero'
 import Features from '@/components/landing/Features'
+import SocialProof from '@/components/landing/SocialProof'
 import Pricing from '@/components/landing/Pricing'
 import Testimonials from '@/components/landing/Testimonials'
 import FAQ from '@/components/landing/FAQ'
@@ -22,6 +23,7 @@ export default async function Home() {
       <LandingNav />
       <main>
         <Hero />
+        <SocialProof />
         <Features />
         <Pricing />
         <Testimonials />
